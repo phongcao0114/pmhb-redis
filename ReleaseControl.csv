@@ -1,0 +1,7 @@
+Jfrog Repo      ,pmhb_789
+Docker Repo     ,pmhb-redis-789-docker
+AppVersion      ,0.0.1
+
+Module Name     ,Git Repo                ,Version            ,File Type          ,Action                          ,Expose
+----------------------------------------------------------------------------------------------------------------------------------------
+pmhb-redis            ,789/pmhb-redis                ,0.0.1              ,docker             ,Deploy                    	  ,true

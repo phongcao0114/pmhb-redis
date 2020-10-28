@@ -1,0 +1,53 @@
+version: '3'
+services:
+  mssql:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    ports:
+      - "1433:1433"
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: "P@ssw0rd"
+    volumes:
+      - mssql:/var/opt/mssql
+  # docker create -v /var/opt/mssql --name mssql microsoft/mssql-server-linux /bin/true
+  # docker run -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=P@ssw0rd' -p 1433:1433 --volumes-from mssql --name sql-server microsoft/mssql-server-linux
+  zookeeper:
+    image: wurstmeister/zookeeper
+    ports:
+      - "2181:2181"
+    container_name: ph_zookeeper
+  kafka:
+    image: wurstmeister/kafka
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_ADVERTISED_HOST_NAME: 127.0.0.1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_CREATE_TOPICS: "ph.ms.test.v1:1:1,ph.ms.demo.v1:1:1"
+    depends_on:
+      - zookeeper
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    container_name: ph_kafka
+  redis:
+    image: 'bitnami/redis'
+    environment:
+      # ALLOW_EMPTY_PASSWORD is recommended only for development.
+      - ALLOW_EMPTY_PASSWORD=yes
+    ports:
+      - '6379:6379'
+    container_name: ph_redis
+#  oracle:
+#    container_name: ph_OracleSE
+#    image: oracle/database:19.3.0-se2
+#    ports:
+#      - 1521:1521
+#      - 5500:5500
+#    environment:
+#      ORACLE_SID: TEST01
+#      ORACLE_PDB: TESTPDB01
+#      ORACLE_PWD: password
+#      ORACLE_CHARACTERSET: AL32UTF8
+
+volumes:
+  mssql:

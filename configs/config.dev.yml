@@ -1,0 +1,26 @@
+app_id: "789"
+
+http_server:
+  read_timeout: 10s
+  write_timeout: 10s
+  read_header_timeout: 10s
+  shutdown_timeout: 10s
+
+redis:
+  addresses:
+    - "127.0.0.1:6379"
+  master_name: "redismaster"
+  secret_key: ""
+  ttl: 3600
+  dial_timeout: 5s
+  max_idle: 100
+  max_active: 3000
+  idle_timeout: 5s
+  password: "myredis"
+
+crypto:
+  password: "516f40ad791937e1ee692f7f2865440009ad6dd10d0de82ff78db122d11ff056"
+  salt: "PH-OPEN"
+  iteration: 32
+  key_size: 32
+  iv: "AAAAAAAAAAAAAAAA"

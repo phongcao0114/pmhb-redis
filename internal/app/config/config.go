@@ -105,7 +105,7 @@ type (
 	}
 	//MSSQLTables all collections in mongodb
 	MSSQLTables struct {
-		Transactions string `mapstructure:"transactions"`
+		Employees string `mapstructure:"employees"`
 	}
 	// HTTPServer struct represents HTTPServer collection
 	HTTPServer struct {
@@ -125,7 +125,7 @@ type (
 	}
 	// OracleTables all tables in DB
 	OracleTables struct {
-		Transactions string `mapstructure:"transactions"`
+		Transactions string `mapstructure:"employees"`
 	}
 	//Redis struct represents Redis collection
 	Redis struct {

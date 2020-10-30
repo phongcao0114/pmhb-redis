@@ -2,53 +2,87 @@ package services
 
 import (
 	"context"
+	"encoding/json"
+	"errors"
 	"pmhb-redis/internal/app/config"
 	"pmhb-redis/internal/app/models"
 	"pmhb-redis/internal/kerrors"
 	"pmhb-redis/internal/pkg/klog"
+	"time"
+
+	"github.com/go-redis/redis"
 )
 
 const (
-	// TransactionsServicePrefix prefix logger
-	TransactionsServicePrefix = "Transactions_service"
+	// EmployeesServicePrefix prefix logger
+	EmployeesServicePrefix = "Employees_service"
 )
 
 type (
-	// TransactionsSrv groups all transactions service together
-	TransactionsSrv struct {
+	// EmployeesSrv groups all employees service together
+	EmployeesSrv struct {
 		conf   *config.Configs
 		errSrv kerrors.KError
 		logger klog.Logger
 
-		//transactionsRepo repositories.TransactionsRepository
+		//employeesRepo repositories.EmployeesRepository
 		redisConn RedisConnectorService
 	}
 
-	//TransactionsService interface
-	TransactionsService interface {
-		GetTransactions(ctx context.Context, req *models.GetTransactionSrvReq) ([]models.Transactions, error)
-		InsertTransaction(ctx context.Context, req *models.InsertTransactionSrvReq) (models.InsertTransactionSrvRes, error)
+	//EmployeesService interface
+	EmployeesService interface {
+		GetEmployee(ctx context.Context, key string) (models.Employee, error)
+		SetEmployee(ctx context.Context, key string, employee models.Employee, expiryTime int) (models.Employee, error)
 	}
 )
 
-//NewTransactionsService init a new transactions service
-func NewTransactionsService(conf *config.Configs, redisConn RedisConnectorService) *TransactionsSrv {
-	return &TransactionsSrv{
+//NewEmployeesService init a new employees service
+func NewEmployeesService(conf *config.Configs, redisConn RedisConnectorService) *EmployeesSrv {
+	return &EmployeesSrv{
 		conf:   conf,
-		errSrv: kerrors.WithPrefix(TransactionsServicePrefix),
-		logger: klog.WithPrefix(TransactionsServicePrefix),
+		errSrv: kerrors.WithPrefix(EmployeesServicePrefix),
+		logger: klog.WithPrefix(EmployeesServicePrefix),
 
-		//transactionsRepo: repo,
+		//employeesRepo: repo,
 		redisConn: redisConn,
 	}
 }
 
-// GetTransactions function service
-func (tr *TransactionsSrv) GetTransactions(ctx context.Context, req *models.GetTransactionSrvReq) ([]models.Transactions, error) {
-	return []models.Transactions{}, nil
+// GetEmployees function service
+func (tr *EmployeesSrv) GetEmployee(ctx context.Context, key string) (models.Employee, error) {
+	employee := models.Employee{}
+	if key == "" {
+		return employee, tr.errSrv.Wrap(errors.New(kerrors.KeyMissingInRedis.String()), kerrors.KeyMissingInRedis, nil)
+	}
+
+	val, err := tr.redisConn.Get(ctx, key)
+	if err != nil {
+		if err == redis.Nil {
+			return employee, tr.errSrv.Wrap(err, kerrors.NotFoundInRedis, nil)
+		}
+		return employee, tr.errSrv.Wrap(err, kerrors.CannotGetRedis, nil)
+	}
+	err = json.Unmarshal([]byte(val), &employee)
+	if err != nil {
+		return employee, tr.errSrv.Wrap(err, kerrors.UnMarshalFail, nil)
+	}
+	return employee, nil
 }
 
-// InsertTransaction function service
-func (tr *TransactionsSrv) InsertTransaction(ctx context.Context, req *models.InsertTransactionSrvReq) (models.InsertTransactionSrvRes, error) {
-	return models.InsertTransactionSrvRes{}, nil
+// SetEmployee function service
+func (tr *EmployeesSrv) SetEmployee(ctx context.Context, key string, employee models.Employee, expiryTime int) (models.Employee, error) {
+	if key == "" {
+		return employee, tr.errSrv.Wrap(errors.New(kerrors.KeyMissingInRedis.String()), kerrors.KeyMissingInRedis, nil)
+	}
+	if employee.Name == "" {
+		return employee, tr.errSrv.Wrap(errors.New(kerrors.EmployeeNameMissing.String()), kerrors.EmployeeNameMissing, nil)
+	}
+	if employee.Position == "" {
+		return employee, tr.errSrv.Wrap(errors.New(kerrors.EmployeePositionMissing.String()), kerrors.EmployeePositionMissing, nil)
+	}
+	err := tr.redisConn.Set(ctx, key, employee, time.Duration(expiryTime)*time.Second)
+	if err != nil {
+		return employee, tr.errSrv.Wrap(err, kerrors.CannotSetRedis, nil)
+	}
+	return employee, nil
 }

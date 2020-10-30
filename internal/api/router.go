@@ -7,7 +7,8 @@ import (
 	"pmhb-redis/internal/app/config"
 	"pmhb-redis/internal/pkg/middlewares"
 
-	redigo "github.com/gomodule/redigo/redis"
+	"github.com/go-redis/redis"
+
 	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
 )
@@ -18,15 +19,14 @@ const (
 )
 
 type InfraConn struct {
-	//DBconn      *db.DB
-	RedisClient *redigo.Pool
+	RedisClient *redis.ClusterClient
 }
 
 // NewRouter return new mux router with a closer for cleaning up underlying resources
 func NewRouter(conf *config.Configs, infraConn *InfraConn) (*mux.Router, error) {
 
-	// Transaction handler API
-	transactionHandler := CreateTransactionHandler(conf, infraConn.RedisClient)
+	// Employee handler API
+	employeeHandler := CreateEmployeeHandler(conf, infraConn.RedisClient)
 
 	router := mux.NewRouter()
 
@@ -45,13 +45,13 @@ func NewRouter(conf *config.Configs, infraConn *InfraConn) (*mux.Router, error) 
 			desc:    "Get API for payment hub",
 			method:  post,
 			path:    "/kph/api/get",
-			handler: transactionHandler.GetTransaction,
+			handler: employeeHandler.GetEmployee,
 		},
 		{
 			desc:    "Set API for payment hub",
 			method:  post,
 			path:    "/kph/api/set",
-			handler: transactionHandler.InsertTransaction,
+			handler: employeeHandler.InsertEmployee,
 		},
 	}
 	router.Use(middlewares.Recover)
@@ -82,7 +82,7 @@ func JSON(ctx context.Context, w http.ResponseWriter, status int, data interface
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(status)
 	w.Write(b)
-}
+} /**/
 
 // Error main function
 func Error(ctx context.Context, w http.ResponseWriter, err error, status int) {

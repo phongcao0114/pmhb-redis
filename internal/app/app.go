@@ -12,7 +12,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/gomodule/redigo/redis"
+	"github.com/go-redis/redis"
 )
 
 type (
@@ -34,7 +34,7 @@ type (
 	// Options model
 	Options struct {
 		Config *config.Configs
-		Redis  *redis.Pool
+		Redis  *redis.ClusterClient
 		Server *http.Server
 	}
 )

@@ -1,63 +1,23 @@
 package redis
 
 import (
-	"errors"
+	"fmt"
 	"pmhb-redis/internal/app/config"
-	"time"
 
-	"github.com/FZambia/sentinel"
-	redigo "github.com/gomodule/redigo/redis"
+	"github.com/go-redis/redis"
 )
 
-func CreateRedisPool(sconf *config.Configs) *redigo.Pool {
-	// Prepare Sentinel
-	sntnl := &sentinel.Sentinel{
-		Addrs:      sconf.Redis.Addresses,
-		MasterName: sconf.Redis.MasterName,
-		Dial: func(addr string) (redigo.Conn, error) {
-			timeout := sconf.Redis.DialTimeout
-			c, err := redigo.Dial("tcp", addr, redigo.DialConnectTimeout(timeout), redigo.DialReadTimeout(timeout), redigo.DialWriteTimeout(timeout))
-			if err != nil {
-				return nil, err
-			}
-			return c, nil
-		},
-	}
+func CreateRedisClusterClient(sconf *config.Configs) (*redis.ClusterClient, error) {
+	fmt.Println("addresses:", sconf.Redis.Addresses)
 
-	// Return redis Pool
-	return &redigo.Pool{
-		MaxIdle:     sconf.Redis.MaxIdle,
-		MaxActive:   sconf.Redis.MaxActive,
-		Wait:        true,
-		IdleTimeout: sconf.Redis.IdleTimeout,
-		Dial: func() (redigo.Conn, error) {
-			masterAddr, err := sntnl.MasterAddr()
-			if err != nil {
-				return nil, err
-			}
-			if sconf.Redis.Password != "" {
-				c, err := redigo.Dial("tcp", masterAddr, redigo.DialPassword(sconf.Redis.Password))
-				if err != nil {
-					return nil, err
-				}
-				return c, nil
-			}
+	c := redis.NewClusterClient(&redis.ClusterOptions{
+		Addrs:    sconf.Redis.Addresses,
+		Password: sconf.Redis.Password,
+	})
 
-			c, err := redigo.Dial("tcp", masterAddr)
-			if err != nil {
-				return nil, err
-			}
-			return c, nil
-		},
-		TestOnBorrow: func(c redigo.Conn, t time.Time) error {
-			if !sentinel.TestRole(c, "master") {
-				return errors.New("role check failed")
-			}
-			if time.Since(t) < 10*time.Second {
-				return nil
-			}
-			_, err := c.Do("PING")
-			return err
-		},
+	if err := c.Ping().Err(); err != nil {
+		return nil, err
 	}
+	return c, nil
+
 }

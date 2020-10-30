@@ -35,6 +35,9 @@ const (
 	MarshalFail              ErrorCode = "1002"
 	UnMarshalFail            ErrorCode = "1003"
 	DuplicateRequestInfo     ErrorCode = "1004"
+	KeyMissingInRedis        ErrorCode = "1005"
+	EmployeeNameMissing      ErrorCode = "1006"
+	EmployeePositionMissing  ErrorCode = "1007"
 
 	/*-------- InternalServerError start with = 2 ----------*/
 	DatabaseServerError        ErrorCode = "2000"
@@ -52,8 +55,9 @@ const (
 	NotFoundItemInQuery         ErrorCode = "4000"
 	CannotDecodeDatabaseRequest ErrorCode = "4001"
 	CursorDatabaseErr           ErrorCode = "4002"
-	StoreTransactionErr         ErrorCode = "4003"
-	TransactionExisting         ErrorCode = "4004"
+	StoreEmployeeErr            ErrorCode = "4003"
+	EmployeeExisting            ErrorCode = "4004"
+	NotFoundInRedis             ErrorCode = "4005"
 
 	/*-------- SecurityAuthorizeOnlyBackOffice start with = 5 ----------*/
 	AuthenticationRedisFailed ErrorCode = "5000"
@@ -74,6 +78,9 @@ var ErrDictionary = Dictionary{Items: map[ErrorCode]ErrorMessage{
 	MarshalFail:              "Marshal failed",
 	UnMarshalFail:            "Unmarshal failed",
 	DuplicateRequestInfo:     "Duplicate request information",
+	KeyMissingInRedis:        "Key is missing",
+	EmployeeNameMissing:      "name is missing",
+	EmployeePositionMissing:  "position is missing",
 
 	/*-------- InternalServerError start with = 2 ----------*/
 	DatabaseServerError:        "Database server error",
@@ -91,8 +98,9 @@ var ErrDictionary = Dictionary{Items: map[ErrorCode]ErrorMessage{
 	NotFoundItemInQuery:         "Not found item in query",
 	CannotDecodeDatabaseRequest: "Can't decode database request",
 	CursorDatabaseErr:           "Cursor database error",
-	StoreTransactionErr:         "Store transaction error",
-	TransactionExisting:         "The information has existed",
+	StoreEmployeeErr:            "Store employee error",
+	EmployeeExisting:            "The information has existed",
+	NotFoundInRedis:             "No value found",
 
 	/*-------- SecurityAuthorizeOnlyBackOffice start with = 5 ----------*/
 	AuthenticationRedisFailed: "Redis authentication failed",

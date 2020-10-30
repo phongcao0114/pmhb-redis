@@ -10,7 +10,11 @@ import (
 
 func UseRedis() Option {
 	return func(o *Options) error {
-		o.Redis = redis.CreateRedisPool(o.Config)
+		r, err := redis.CreateRedisClusterClient(o.Config)
+		if err != nil {
+			return err
+		}
+		o.Redis = r
 		return nil
 	}
 }

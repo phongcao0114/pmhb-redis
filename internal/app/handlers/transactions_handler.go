@@ -9,75 +9,66 @@ import (
 	"pmhb-redis/internal/app/utils"
 	"pmhb-redis/internal/kerrors"
 	"pmhb-redis/internal/pkg/klog"
+
+	"fmt"
 )
 
 const (
-	// TransactionHandlerPrefix prefix logger
-	TransactionHandlerPrefix = "Transaction_handler"
+	// EmployeeHandlerPrefix prefix logger
+	EmployeeHandlerPrefix = "Employee_handler"
 )
 
-// TransactionHandler struct defines the variables for specifying interface.
-type TransactionHandler struct {
+// EmployeeHandler struct defines the variables for specifying interface.
+type EmployeeHandler struct {
 	conf       *config.Configs
 	errHandler kerrors.KError
 	logger     klog.Logger
 
-	srv services.TransactionsService
+	srv services.EmployeesService
 }
 
-// NewTransactionHandler connects to the service from handler.
-func NewTransactionHandler(conf *config.Configs, s services.TransactionsService) *TransactionHandler {
-	return &TransactionHandler{
+// NewEmployeeHandler connects to the service from handler.
+func NewEmployeeHandler(conf *config.Configs, s services.EmployeesService) *EmployeeHandler {
+	return &EmployeeHandler{
 		conf:       conf,
-		errHandler: kerrors.WithPrefix(TransactionHandlerPrefix),
-		logger:     klog.WithPrefix(TransactionHandlerPrefix),
+		errHandler: kerrors.WithPrefix(EmployeeHandlerPrefix),
+		logger:     klog.WithPrefix(EmployeeHandlerPrefix),
 
 		srv: s,
 	}
 }
 
-// GetTransaction handler handles the upcoming request.
-func (th *TransactionHandler) GetTransaction(w http.ResponseWriter, r *http.Request) {
-
+// GetEmployee handler handles the upcoming request.
+func (th *EmployeeHandler) GetEmployee(w http.ResponseWriter, r *http.Request) {
 	var req models.RequestInfo
-	var body models.GetTransactionReq
+	var body models.GetEmployeeReq
 	err := utils.DecodeToBody(&th.errHandler, &req, &body, r)
 	if err != nil {
 		response.WriteJSON(w)(response.HandleError(r, req.Header, err))
 		return
 	}
-
-	list, err := th.srv.GetTransactions(r.Context(), &models.GetTransactionSrvReq{
-		TransactionID: body.TransactionID,
-	})
+	fmt.Printf("req: %+v\n", req)
+	employee, err := th.srv.GetEmployee(r.Context(), body.Key)
 	if err != nil {
 		response.WriteJSON(w)(response.HandleError(r, req.Header, err))
 		return
 	}
-
-	commitModels := models.GetTransactionRes{
-		ListTransactions: list,
-	}
-
-	response.WriteJSON(w)(response.HandleSuccess(r, req.Header, commitModels))
+	response.WriteJSON(w)(response.HandleSuccess(r, req.Header, employee))
 	return
-
 }
 
-// InsertTransaction handler handles the upcoming request.
-func (th *TransactionHandler) InsertTransaction(w http.ResponseWriter, r *http.Request) {
+// InsertEmployee handler handles the upcoming request.
+func (th *EmployeeHandler) InsertEmployee(w http.ResponseWriter, r *http.Request) {
 
 	var req models.RequestInfo
-	body := models.InsertTransactionReq{}
+	body := models.SetEmployeeReq{}
 	err := utils.DecodeToBody(&th.errHandler, &req, &body, r)
 	if err != nil {
 		response.WriteJSON(w)(response.HandleError(r, req.Header, err))
 		return
 	}
 
-	commitModels, err := th.srv.InsertTransaction(r.Context(), &models.InsertTransactionSrvReq{
-		TransactionName: body.TransactionName,
-	})
+	commitModels, err := th.srv.SetEmployee(r.Context(), body.Key, body.Employee, body.ExpiryTime)
 	if err != nil {
 		response.WriteJSON(w)(response.HandleError(r, req.Header, err))
 		return

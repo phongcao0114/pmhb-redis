@@ -6,7 +6,7 @@ import (
 	"pmhb-redis/internal/app/handlers"
 	"pmhb-redis/internal/app/services"
 
-	redigo "github.com/gomodule/redigo/redis"
+	"github.com/go-redis/redis"
 )
 
 type (
@@ -20,11 +20,11 @@ type (
 	}
 )
 
-// CreateTransactionHandler function
-func CreateTransactionHandler(conf *config.Configs, redisClient *redigo.Pool) *handlers.TransactionHandler {
+// CreateEmployeeHandler function
+func CreateEmployeeHandler(conf *config.Configs, redisClient *redis.ClusterClient) *handlers.EmployeeHandler {
 	redisConn := services.NewRedisConnectorSrv(conf, redisClient)
 
-	//repo := repositories.NewTransactionsRepo(conf, )
-	srv := services.NewTransactionsService(conf, redisConn)
-	return handlers.NewTransactionHandler(conf, srv)
+	//repo := repositories.NewEmployeesRepo(conf, )
+	srv := services.NewEmployeesService(conf, redisConn)
+	return handlers.NewEmployeeHandler(conf, srv)
 }

@@ -9,8 +9,6 @@ import (
 	"pmhb-redis/internal/app/utils"
 	"pmhb-redis/internal/kerrors"
 	"pmhb-redis/internal/pkg/klog"
-
-	"fmt"
 )
 
 const (
@@ -47,7 +45,6 @@ func (th *EmployeeHandler) GetEmployee(w http.ResponseWriter, r *http.Request) {
 		response.WriteJSON(w)(response.HandleError(r, req.Header, err))
 		return
 	}
-	fmt.Printf("req: %+v\n", req)
 	employee, err := th.srv.GetEmployee(r.Context(), body.Key)
 	if err != nil {
 		response.WriteJSON(w)(response.HandleError(r, req.Header, err))

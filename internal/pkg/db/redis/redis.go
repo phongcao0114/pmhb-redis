@@ -1,14 +1,12 @@
 package redis
 
 import (
-	"fmt"
 	"pmhb-redis/internal/app/config"
 
 	"github.com/go-redis/redis"
 )
 
 func CreateRedisClusterClient(sconf *config.Configs) (*redis.ClusterClient, error) {
-	fmt.Println("addresses:", sconf.Redis.Addresses)
 
 	c := redis.NewClusterClient(&redis.ClusterOptions{
 		Addrs:    sconf.Redis.Addresses,

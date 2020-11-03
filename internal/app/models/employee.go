@@ -16,4 +16,9 @@ type (
 		Employee   Employee `json:"employee"`
 		ExpiryTime int      `json:"expiry_time"`
 	}
+	SetKeyReq struct {
+		Key        string `json:"key"`
+		Value      string `json:"value"`
+		ExpiryTime int    `json:"expiry_time"`
+	}
 )

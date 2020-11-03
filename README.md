@@ -20,7 +20,8 @@ An implementation which implements apis for working with Redis
 
 # APIs
 
-##Set:
+##Set value is string:
+{host}/kph/api/set
 
     {
     	"request_body":{
@@ -33,7 +34,31 @@ An implementation which implements apis for working with Redis
     	}
     }
 
-##Get:
+##Get string value:
+{host}/kph/api/get
+
+        {
+    	"request_body":{
+    		"key":"redis-key-001"
+    	}
+    }
+    
+##Set employee:
+{host}/kph/api/employee/set
+
+    {
+    	"request_body":{
+    		"key":"redis-key-001",
+    		"employee":{
+    			"name":"john",
+    			"position":"director"
+    		},
+    		"expiry_time":900
+    	}
+    }
+
+##Get employee:
+{host}/kph/api/employee/get
 
         {
     	"request_body":{

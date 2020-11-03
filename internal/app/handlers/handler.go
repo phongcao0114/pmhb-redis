@@ -75,3 +75,41 @@ func (th *EmployeeHandler) InsertEmployee(w http.ResponseWriter, r *http.Request
 	return
 
 }
+
+func (th *EmployeeHandler) GetValue(w http.ResponseWriter, r *http.Request) {
+	var req models.RequestInfo
+	var body models.GetEmployeeReq
+	err := utils.DecodeToBody(&th.errHandler, &req, &body, r)
+	if err != nil {
+		response.WriteJSON(w)(response.HandleError(r, req.Header, err))
+		return
+	}
+	value, err := th.srv.GetValue(r.Context(), body.Key)
+	if err != nil {
+		response.WriteJSON(w)(response.HandleError(r, req.Header, err))
+		return
+	}
+	response.WriteJSON(w)(response.HandleSuccess(r, req.Header, value))
+	return
+}
+
+func (th *EmployeeHandler) SetKey(w http.ResponseWriter, r *http.Request) {
+
+	var req models.RequestInfo
+	var body models.SetKeyReq
+	err := utils.DecodeToBody(&th.errHandler, &req, &body, r)
+	if err != nil {
+		response.WriteJSON(w)(response.HandleError(r, req.Header, err))
+		return
+	}
+
+	commitModels, err := th.srv.SetKey(r.Context(), body.Key, body.Value, body.ExpiryTime)
+	if err != nil {
+		response.WriteJSON(w)(response.HandleError(r, req.Header, err))
+		return
+	}
+
+	response.WriteJSON(w)(response.HandleSuccess(r, req.Header, commitModels))
+	return
+
+}

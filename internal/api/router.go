@@ -44,14 +44,26 @@ func NewRouter(conf *config.Configs, infraConn *InfraConn) (*mux.Router, error) 
 		{
 			desc:    "Get API for payment hub",
 			method:  post,
-			path:    "/kph/api/get",
+			path:    "/kph/api/employee/get",
 			handler: employeeHandler.GetEmployee,
 		},
 		{
 			desc:    "Set API for payment hub",
 			method:  post,
-			path:    "/kph/api/set",
+			path:    "/kph/api/employee/set",
 			handler: employeeHandler.InsertEmployee,
+		},
+		{
+			desc:    "Get API for payment hub",
+			method:  post,
+			path:    "/kph/api/get",
+			handler: employeeHandler.GetValue,
+		},
+		{
+			desc:    "Set API for payment hub",
+			method:  post,
+			path:    "/kph/api/set",
+			handler: employeeHandler.SetKey,
 		},
 	}
 	router.Use(middlewares.Recover)

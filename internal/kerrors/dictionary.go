@@ -38,6 +38,7 @@ const (
 	KeyMissingInRedis        ErrorCode = "1005"
 	EmployeeNameMissing      ErrorCode = "1006"
 	EmployeePositionMissing  ErrorCode = "1007"
+	ValueMissingInRedis      ErrorCode = "1008"
 
 	/*-------- InternalServerError start with = 2 ----------*/
 	DatabaseServerError        ErrorCode = "2000"
@@ -79,8 +80,9 @@ var ErrDictionary = Dictionary{Items: map[ErrorCode]ErrorMessage{
 	UnMarshalFail:            "Unmarshal failed",
 	DuplicateRequestInfo:     "Duplicate request information",
 	KeyMissingInRedis:        "Key is missing",
-	EmployeeNameMissing:      "name is missing",
-	EmployeePositionMissing:  "position is missing",
+	EmployeeNameMissing:      "Name is missing",
+	EmployeePositionMissing:  "Position is missing",
+	ValueMissingInRedis:      "Value is missing",
 
 	/*-------- InternalServerError start with = 2 ----------*/
 	DatabaseServerError:        "Database server error",

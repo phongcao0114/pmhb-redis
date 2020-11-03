@@ -33,6 +33,8 @@ type (
 	EmployeesService interface {
 		GetEmployee(ctx context.Context, key string) (models.Employee, error)
 		SetEmployee(ctx context.Context, key string, employee models.Employee, expiryTime int) (models.Employee, error)
+		GetValue(ctx context.Context, key string) (string, error)
+		SetKey(ctx context.Context, key string, value string, expiryTime int) (string, error)
 	}
 )
 
@@ -85,4 +87,34 @@ func (tr *EmployeesSrv) SetEmployee(ctx context.Context, key string, employee mo
 		return employee, tr.errSrv.Wrap(err, kerrors.CannotSetRedis, nil)
 	}
 	return employee, nil
+}
+
+func (tr *EmployeesSrv) GetValue(ctx context.Context, key string) (string, error) {
+	value := ""
+	if key == "" {
+		return value, tr.errSrv.Wrap(errors.New(kerrors.KeyMissingInRedis.String()), kerrors.KeyMissingInRedis, nil)
+	}
+
+	value, err := tr.redisConn.Get(ctx, key)
+	if err != nil {
+		if err == redis.Nil {
+			return value, tr.errSrv.Wrap(err, kerrors.NotFoundInRedis, nil)
+		}
+		return value, tr.errSrv.Wrap(err, kerrors.CannotGetRedis, nil)
+	}
+	return value, nil
+}
+
+func (tr *EmployeesSrv) SetKey(ctx context.Context, key string, value string, expiryTime int) (string, error) {
+	if key == "" {
+		return "", tr.errSrv.Wrap(errors.New(kerrors.KeyMissingInRedis.String()), kerrors.KeyMissingInRedis, nil)
+	}
+	if value == "" {
+		return "", tr.errSrv.Wrap(errors.New(kerrors.ValueMissingInRedis.String()), kerrors.ValueMissingInRedis, nil)
+	}
+	err := tr.redisConn.Set(ctx, key, value, time.Duration(expiryTime)*time.Second)
+	if err != nil {
+		return "", tr.errSrv.Wrap(err, kerrors.CannotSetRedis, nil)
+	}
+	return value, nil
 }
